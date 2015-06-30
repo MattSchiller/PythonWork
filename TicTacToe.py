@@ -1,17 +1,11 @@
 #python
-BoardNumbers = [1,2,3,4,5,6,7,8,9]
-BoardState = [" "," "," "," "," "," "," "," "," "]
-i = 0
-CurrentPlayer = "X"
-MoveCount = 0
-Winner = ""
 
 def printBoard(myBoard):
-	print(str(myBoard[0]) +"|" +str(myBoard[1]) +"|" +str(myBoard[2]))
-	print("-+-+-")
-	print(str(myBoard[3]) +"|" +str(myBoard[4]) +"|" +str(myBoard[5]))
-	print("-+-+-")
-	print(str(myBoard[6]) +"|" +str(myBoard[7]) +"|" +str(myBoard[8]))
+	print((str(myBoard[0]) +"|" +str(myBoard[1]) +"|" +str(myBoard[2])).center(40))
+	print(("-+-+-").center(40))
+	print((str(myBoard[3]) +"|" +str(myBoard[4]) +"|" +str(myBoard[5])).center(40))
+	print(("-+-+-").center(40))
+	print((str(myBoard[6]) +"|" +str(myBoard[7]) +"|" +str(myBoard[8])).center(40))
 	print("") 
 	
 def checkForWin(myBoard):
@@ -31,14 +25,29 @@ def acceptNewMove():
 	moveIsValid = False
 	while moveIsValid is False:
 		myMove = input("Current player is " + CurrentPlayer + ". Please enter your move: ")
-		myMove = int(myMove)-1
-		if BoardState[myMove] is " ":
-			BoardState[myMove] = CurrentPlayer
-			moveIsValid = True
-		else:
+		try:
+			myMove = int(myMove)
+		except:
 			print("Invalid move, let's try again")
+			continue
+		if myMove > 8 or myMove < 0:
+			print("Invalid move, let's try again")
+		else:
+			if BoardState[myMove] is " ":
+				BoardState[myMove] = CurrentPlayer
+				moveIsValid = True
+			else:
+				print("Invalid move, let's try again")
 	MoveCount+=1
 
+BoardNumbers = range(9)
+BoardState = [" "]*9
+i = 0
+CurrentPlayer = "X"
+MoveCount = 0
+Winner = ""
+
+#Runs the game
 while MoveCount < 9 and Winner is "":
 	print("Legend for where to put game moves")
 	printBoard(BoardNumbers)
