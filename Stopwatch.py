@@ -8,4 +8,9 @@ class stopwatch():
 	def stop(self):
 		self.stopTime = time.time()
 	def duration(self):
-		return self.stopTime - self.startTime
+		if self.startTime is 0:
+			return self.endTime
+		elif self.endTime is 0:
+			return time.time() - self.startTime
+		else
+			return self.stopTime - self.startTime
