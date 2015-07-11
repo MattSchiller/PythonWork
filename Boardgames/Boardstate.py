@@ -99,7 +99,6 @@ class board(object):
 	def generateMoveList(self, row, col, needJump=False):
 		init()
 		if self.game == "checkers":
-			##KINGS CAN LOOP AROUND THE BOARD LEFT-RIGHT??
 			moveList = []
 			if self.square[row][col].topDir in self.square[row][col].myDir:				#Top-style movement
 				if not needJump:
@@ -111,7 +110,6 @@ class board(object):
 					if self.square[row+1][col-1].color not in [self.square[row][col].color, self.square[row][col].empty]:
 						moveList.append([row+2, col-2])
 				if row < len(self.square)-2 and col < len(self.square[row])-2:			#Top-style jumping (right)
-					##THIS BUGGED OUT, DIDN'T FIND MOVE INTO BOTTOM RIGHTMOST CORNER
 					if self.square[row+1][col+1].color not in [self.square[row][col].color, self.square[row][col].empty]:
 						moveList.append([row+2, col+2])		
 			if self.square[row][col].botDir in self.square[row][col].myDir:				#Bot-style movement
