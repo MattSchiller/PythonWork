@@ -150,34 +150,26 @@ class board(object):
 	
 	def isGameOver(self, player):
 		#Checks if there are any valid moves for the current player or at all
-		
-		
-		#######GAME OVER NOT WORKING
-		
-		
 		if self.playerPieces(player) == 0:
-			self.winner = self.players[int(not player)]			#Lost with no pieces and not to a double-jump
+			self.winner = self.players[int(not player)].color					#Lost with no pieces and not to a double-jump
 			return True
-		elif self.playerPieces(int(not player)) == 0:			#Won by taking all opp's pieces
+		elif self.playerPieces(int(not player)) == 0:							#Won by taking all opp's pieces
 			self.winner = self.players[player].color
 			return True
-		else:													#Both players on board
-			print("evaluating game status")
+		else:																	#Both players on board
 			for row in range(len(self.square)):
 				for col in range(len(self.square[row])):
 					if self.hasValidMoves(row, col, player):
-						print("Player {} has a move!".format(self.players[player].color))
-						return False							#Player on the play has a move
-			print("Player {} has no moves!".format(self.players[player].color))
+						return False											#Player on the play has a move, not Game Over
 			for row in range(len(self.square)):
 				for col in range(len(self.square[row])):
 					if self.hasValidMoves(row, col, int(not player)):
-						self.winner = "No one"					#No one has moves
-						print("Player {} has no moves!".format(self.players[int(not player)].color))
-						return True
-			print("Player {} has a move!".format(self.players[int(not player)].color))
-			self.winner = self.players[int(not player)].color	
-			return True											#Player has no moves, opponent does
+						print("Player {} has no moves and Player {} has a move!".format(self.players[player].color, self.players[int(not player)].color))
+						self.winner = self.players[int(not player)].color		#Lost due to opponent having moves when you don't
+						return True	
+			print("Player {} and {} have no moves!".format(self.players[player].color, self.players[int(not player)].color))
+			self.winner = "No one"												#No one has moves
+			return True
 	
 	def playerPieces(self, player):
 		#Returns the number of pieces a player has

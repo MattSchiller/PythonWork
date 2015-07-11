@@ -42,9 +42,12 @@ def initPlayers():
 
 def takeTurn(currPlayer):
 	#Solicits the user for a move and returns the value of the next player to make a move
+	
+	##Correct double-jump cancellation
+	
 	global theBoard
 	if theBoard.game == "checkers":
-		myPiece = -1
+		myPiece = (-1,-1)
 		while True:
 			myPiece = getPiece(currPlayer)
 			myDest = getDestination(currPlayer, myPiece)
@@ -53,11 +56,13 @@ def takeTurn(currPlayer):
 		nextPlayer = currPlayer
 		while nextPlayer == currPlayer and myDest != (-1, -1):		#Double-jump recursion
 			nextPlayer = theBoard.makeMove(currPlayer, myPiece[0], myPiece[1], myDest[0], myDest[1])
-			if nextPlayer == currPlayer:
+			if nextPlayer == currPlayer:							#Double-jump available
 				myPiece = myDest
 				myDest = getDestination(currPlayer, myPiece, nextPlayer==currPlayer)
-		if myDest == -1:
-			return currPlayer
+		if myDest == (-1, -1):
+			if nextPlayer == currPlayer:
+				return int(not nextPlayer)							#Double-jump cancellation
+			return currPlayer										#Piece reselection
 		return nextPlayer	
 
 def getPiece(currPlayer):
@@ -70,6 +75,9 @@ def getPiece(currPlayer):
 				tempPiece = int(input("Player {}, please enter which piece to move: ".format(theBoard.players[currPlayer].color)))
 			except ValueError:
 				print("Please enter a valid number from the legend")
+			if not str(tempPiece).strip():
+				print("You cannot pass a turn.")
+				continue
 			pieceRow = int(tempPiece / len(theBoard.square))
 			pieceCol = int(tempPiece % len(theBoard.square))
 			if pieceRow < 0 or pieceCol < 0 or pieceRow > len(theBoard.square)-1 or pieceCol > len(theBoard.square[0])-1:
@@ -91,7 +99,10 @@ def getDestination(currPlayer, currPiece, jumping=False):
 			try:
 				destination = int(input("Player {}, please enter where to move piece {} ('-1' to choose a different piece; or cancel move if double-jumping): ".format(theBoard.players[currPlayer].color, currPiece[0]*len(theBoard.square)+currPiece[1])))
 			except ValueError:
-				print("Please enter a valid number from the legend")			
+				print("Please enter a valid number from the legend")		
+			if not str(destination).strip():
+				print("You cannot pass a turn.")
+				continue				
 			destRow = int(destination / len(theBoard.square))
 			destCol = int(destination % len(theBoard.square))
 			if destination > ((len(theBoard.square)*len(theBoard.square[0]))-1) or destination < -2:
@@ -116,7 +127,8 @@ def playGame():
 	currentPlayer = 0
 	while not gameOver:
 		currentPlayer = takeTurn(currentPlayer)
-		theBoard.isGameOver(currentPlayer)
+		gameOver = theBoard.isGameOver(currentPlayer)
+	theBoard.printBoard(0)
 	print("Game over! {} wins!".format(theBoard.winner))
 		
 	
