@@ -85,17 +85,26 @@ def miniMax(simPlayer, simBoard, depth):
 	#NOT WORKING######### Keeps losing after 2-3 turns
 	MMDict = {}
 	
+	debugBoard = [empty]*9
 	for i in listOfEmpties(simBoard):
 		simBoard[i] = players[simPlayer][1]
-		MMDict[miniMax(int(not simPlayer), simBoard, depth+1)] = i
+		debugBoard[i] = miniMax(int(not simPlayer), simBoard, depth+1)
+		MMDict[debugBoard[i]] = i
 		simBoard[i] = empty		
-	
+
+#	if depth in [1]:
+#		printBoard(simBoard)
+#		printBoard(debugBoard)
+#		print(MMDict)
+#		print("I predict player {} will go {}".format(players[simPlayer][1], MMDict[max(MMDict.keys())]))
+#		wait = input("Enter to continue")
+
 	if players[simPlayer][0] == human:
 		#compMove = MMDict[max(MMDict, key=MMDict.get)]
-		return max(MMDict, key=MMDict.get)
+		return max(MMDict.keys())
 	else:
-		compMove = MMDict[min(MMDict, key=MMDict.get)]
-		return min(MMDict, key=MMDict.get)
+		compMove = MMDict[min(MMDict.keys())]
+		return min(MMDict.keys())
 
 
 def initTicTacToe():
