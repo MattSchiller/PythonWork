@@ -31,7 +31,7 @@ def initPlayers():
 			if humanPriority > len(theBoard.players) or humanPriority < 1:
 				print("Please enter a unused number between {} and {}.".format(1, theBoard.maxHumans))
 				continue
-			elif theBoard.players[humanPriority-1].type is theBoard.unspecPlayer:
+			elif theBoard.playerType(humanPriority-1) is theBoard.unspecPlayer:
 				theBoard.assignPlayer(humanPriority-1, theBoard.humanPlayer)
 				break
 			else:
@@ -42,9 +42,6 @@ def initPlayers():
 
 def takeTurn(currPlayer):
 	#Solicits the user for a move and returns the value of the next player to make a move
-	
-	##Correct double-jump cancellation
-	
 	global theBoard
 	if theBoard.game == "checkers":
 		myPiece = (-1,-1)
@@ -69,7 +66,7 @@ def getPiece(currPlayer):
 	global theBoard
 	tempPiece = 0
 	theBoard.printBoard(currPlayer)
-	if theBoard.players[currPlayer].type == theBoard.humanPlayer:
+	if theBoard.playerType(currPlayer) == theBoard.humanPlayer:
 		while True:
 			try:
 				tempPiece = int(input("Player {}, please enter which piece to move: ".format(theBoard.players[currPlayer].color)))
@@ -86,7 +83,7 @@ def getPiece(currPlayer):
 				print("Please pick your pieces/a piece with valid moves.")
 			else:
 				break
-	elif theBoard.players[currPlayer].type == theBoard.compPlayer:
+	elif theBoard.playerType(currPlayer) == theBoard.compPlayer:
 		#SOMETHING
 		print("beep boop.")
 	return (pieceRow, pieceCol)
@@ -94,7 +91,7 @@ def getPiece(currPlayer):
 def getDestination(currPlayer, currPiece, jumping=False):
 	global theBoard
 	theBoard.printBoard(currPlayer, True, currPiece[0], currPiece[1], jumping)
-	if theBoard.players[currPlayer].type == theBoard.humanPlayer:
+	if theBoard.playerType(currPlayer) == theBoard.humanPlayer:
 		while True:
 			try:
 				destination = int(input("Player {}, please enter where to move piece {} ('-1' to choose a different piece; or cancel move if double-jumping): ".format(theBoard.players[currPlayer].color, currPiece[0]*len(theBoard.square)+currPiece[1])))
@@ -113,7 +110,7 @@ def getDestination(currPlayer, currPiece, jumping=False):
 				print("Please enter a valid move option")
 			else:
 				break
-	elif theBoard.players[currPlayer].type == theBoard.compPlayer:
+	elif theBoard.playerType(currPlayer) == theBoard.compPlayer:
 		#SOMETHING
 		print("beep boop.")
 	return (destRow, destCol)

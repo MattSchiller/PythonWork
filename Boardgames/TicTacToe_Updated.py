@@ -92,13 +92,6 @@ def miniMax(simPlayer, simBoard, depth):
 		MMDict[debugBoard[i]] = i
 		simBoard[i] = empty		
 
-#	if depth in [1]:
-#		printBoard(simBoard)
-#		printBoard(debugBoard)
-#		print(MMDict)
-#		print("I predict player {} will go {}".format(players[simPlayer][1], MMDict[max(MMDict.keys())]))
-#		wait = input("Enter to continue")
-
 	if players[simPlayer][0] == human:
 		#compMove = MMDict[max(MMDict, key=MMDict.get)]
 		return max(MMDict.keys())

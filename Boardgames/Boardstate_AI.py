@@ -1,11 +1,12 @@
-"""Class to describe a given board state."""
+"""Class to describe/modify a given board state."""
+"""Now with built-in AI!"""
 from colorama import init, Fore, Back, Style
 
 class board(object):
 	def __init__(self):
 		self.checkers = "checkers"
 		self.supportedGames = [self.checkers]
-		self.maPlayer1s = 0
+		self.maxPlayers = 0
 		self.minPlayers = 0
 		self.maxHumans = 0
 		self.minHumans = 0
@@ -21,14 +22,14 @@ class board(object):
 		self.game = game.lower()
 		if game in self.supportedGames:
 			self.setupPlayers()
+			self.boardSize = 8
 			self.setupBoard()
 		else:
 			print("Error! Only the game {} is supported.".format(self.supportedGames))	
 	
 	def setupBoard(self):
 		if self.game == self.checkers:
-			self.boardSize = 8
-			self.square = [[piece(self.game, self.emptySpace) for i in range(self.boardSize)] for j in range(8)]
+			self.square = [[piece(self.game, self.emptySpace) for i in range(self.boardSize)] for j in range(self.boardSize)]
 			self.emptyPiece = piece(self.game, self.emptySpace)
 			for i in range(len(self.square)):
 				for j in range(len(self.square[i])):
@@ -39,24 +40,15 @@ class board(object):
 	
 	def setupPlayers(self):
 		if self.game == self.checkers:
-			self.maPlayer1s = 2
+			self.maxPlayers = 2
 			self.minPlayers = 0
-			self.maxHumans = self.maPlayer1s
+			self.maxHumans = self.maxPlayers
 			self.minHumans = self.minPlayers
 			self.Player1 = "X"
 			self.Player2 = "O"
-			self.players = [player(self.unspecPlayer) for i in range(self.maPlayer1s)]
+			self.players = [player(self.unspecPlayer) for i in range(self.maxPlayers)]
 			self.players[0].updateColor(self.Player1)
 			self.players[1].updateColor(self.Player2)			
-	
-	def assignPlayer(self, playerNum, Type):
-		self.players[playerNum].updateType(Type)
-	
-	def playerType(self, playerNum):
-		try:
-			return self.players[playerNum].type
-		except IndexError:
-			return "Out of range!"
 	
 	def printBoard(self, player, gettingDest=False, pieceRow=-1, pieceCol=-1, jumping=False):
 		init(autoreset=True)
@@ -88,6 +80,16 @@ class board(object):
 				printValue = printValue + str(self.square[i][j].color) + Fore.RESET
 				printRow = printRow + Style.DIM + '[' + printValue + ' '*padding + Style.DIM +  ']' + Style.RESET_ALL
 			print(printRow)	
+	
+	def assignPlayer(self, playerNum, Type):
+		self.players[playerNum].updateType(Type)
+	
+	def playerType(self, playerNum):
+		try:
+			return self.players[playerNum].type
+		except IndexError:
+			print("Out of range!")
+			raise SystemExit
 				
 	def hasValidMoves(self, row, col, player):
 		if self.game == self.checkers:
@@ -134,6 +136,7 @@ class board(object):
 			return validMoves
 	
 	def makeMove(self, player, fromRow, fromCol, toRow, toCol):
+		#Makes the move in question, committing it to the board and returns the value of the next player
 		if self.game == self.checkers:
 			self.square[toRow][toCol].updatePiece(self.square[fromRow][fromCol])
 			self.square[fromRow][fromCol].updatePiece(self.emptyPiece)
@@ -149,7 +152,7 @@ class board(object):
 			return int(not player)			
 	
 	def isGameOver(self, player):
-		#Checks if there are any valid moves for the current player or at all
+		#Checks if there are any valid moves for the current player or at all, returns T/F, saves winner to board
 		if self.playerPieces(player) == 0:
 			self.winner = self.players[int(not player)].color					#Lost with no pieces and not to a double-jump
 			return True
@@ -178,7 +181,57 @@ class board(object):
 			for col in range(len(self.square[row])):
 				if self.square[row][col].color == self.players[player].color:
 					count+=1
-		return count				
+		return count			
+
+################AI CODE###############
+def miniMax(self, simBoard, currPlayer, depth=0, jumping=False, jumpingPieceRow=-1, jumpingPieceCol=-1):
+	#Returns the move for a given player and boardstate, else the boardstate value for a given move
+	if isGameOver(simBoard, currPlayer):
+		if simBoard.players[currPlayer].color == simBoard.Player1:		#Maximize
+			return 100 - depth
+		elif simBoard.players[currPlayer].color == simBoard.Player2:	#Minimize
+			return -100 + depth
+		else:															#Tie
+			return 0 + (depth * playerSignum(currPlayer))
+	
+	if depth == 10:														#Only look 10 moves ahead
+		runningPoints = 0
+		#INCLUDE KING COUNT
+		#INCLUDE JUMP AVAILABILITY
+		if playerPieces(currPlayer) > playerPieces(int(not currPlayer)):
+			return 50 * playerSignum(currPlayer)						#Winning, probably
+		else:
+			return (depth + 1) * playerSignum(currPlayer)				#Indeterminate only slightly better than tie
+	
+	
+	moveValues = {}
+	if jumping == True:													#Gotta move this piece or pass
+		for possibleMove in generateMoveList(jumpingPieceRow, jumpingPieceCol, jumping): 
+			nextPlayer = simBoard.makeMove(currPlayer, jumpingPieceRow, jumpingPieceCol, possibleMove[0], possibleMove[1])	#More Jumps
+			currMoveValue = miniMax(simBoard, nextPlayer, depth+1)
+			simBoard.makeMove(currPlayer, jumpingPieceRow, jumpingPieceCol, possibleMove[0], possibleMove[1])
+			
+	for row in range(len(self.square)):
+		for col in range(len(self.square[row])):
+			if self.hasValidMoves(row, col, currPlayer):
+				for possibleMove in generateMoveList(row, col):
+					nextPlayer = simBoard.makeMove(currPlayer, row, col, possibleMove[0], possibleMove[1])	#For Jumps
+					currMoveValue = miniMax(simBoard, nextPlayer, depth+1, nextPlayer == currPlayer, possibleMove[0], possibleMove[1])
+					simBoard.makeMove(currPlayer, row, col, possibleMove[0], possibleMove[1])
+					moveValues[currMoveValue] = possibleMove
+					if 
+	
+	#myPiece in 
+		
+		
+def playerSignum(currPlayer):
+	if simBoard.players[currPlayer].color == simBoard.Player2:
+		return -1
+	else:
+		return 1
+	
+		
+		
 		
 class player(object):								#Player definition	
 	def __init__(self, myType):
